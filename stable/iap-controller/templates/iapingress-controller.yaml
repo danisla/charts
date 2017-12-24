@@ -1,0 +1,57 @@
+apiVersion: apps/v1beta1
+kind: Deployment
+metadata:
+  name: iapingress-controller
+  namespace: metacontroller
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: iapingress-controller
+  template:
+    metadata:
+      labels:
+        app: iapingress-controller
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}  
+    spec:
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: controller
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        command:
+        - "/bin/bash"
+        - "-c"
+        - "pip install -U google-api-python-client requests pyyaml && python /hooks/sync.py"
+        env:
+        - name: SA_KEY
+          value: /var/run/secrets/sa/{{ required "A valid .Values.cloudSA.secretKey value is required!" .Values.cloudSA.secretKey }}
+        volumeMounts:
+        - name: hooks
+          mountPath: /hooks
+        - name: oauth
+          readOnly: true
+          mountPath: /var/run/secrets/oauth
+        - name: sa-key
+          readOnly: true
+          mountPath: /var/run/secrets/sa
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 80
+            scheme: HTTP
+          periodSeconds: 5
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 2
+      volumes:
+      - name: hooks
+        configMap:
+          name: iapingress-controller
+      - name: oauth
+        secret:
+          secretName: {{ required "A valid .Values.oauthSecret value is required!" .Values.oauthSecret }}
+      - name: sa-key
+        secret:
+          secretName: {{ required "A valid .Values.cloudSA.secretName value is required!" .Values.cloudSA.secretName }}

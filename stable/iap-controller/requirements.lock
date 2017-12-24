@@ -1,0 +1,6 @@
+dependencies:
+- name: kube-lego
+  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 0.3.0
+digest: sha256:1889d7ccb44875d6198f18f0bfbb6eacba0f647d3d849d13528c1fe095efea43
+generated: 2017-12-24T12:36:01.667842605-08:00

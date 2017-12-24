@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: iapingress-controller
+  namespace: metacontroller
+  labels:
+    app: {{ template "iap-controller.name" . }}
+    chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+" "_" }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+data:
+  sync.py: |
+{{ .Files.Get "config/sync.py" | indent 4 }}
+  esp-pod.yaml: |
+{{ .Files.Get "config/esp-pod.yaml" | indent 4 }}
+  esp-svc.yaml: |
+{{ .Files.Get "config/esp-svc.yaml" | indent 4 }}
+  ingress.yaml: |
+{{ .Files.Get "config/ingress.yaml" | indent 4 }}
+  openapi.yaml: |
+{{ .Files.Get "config/openapi.yaml" | indent 4 }}

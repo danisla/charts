@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ${SERVICE}-esp
+  namespace: ${NAMESPACE}
+  labels:
+    app: ${SERVICE}-esp
+spec:
+  terminationGracePeriodSeconds: 10
+  containers:
+  - name: esp
+    image: ${IMAGE}
+    args: [
+      "-p", "8080",
+      "-a", "${UPSTREAM}",
+      "-s", "${ENDPOINT_URL}",
+      "-v", "${ENDPOINT_VERSION}",
+      "-z", "healthz",
+    ]
+    readinessProbe:
+      httpGet:
+        host: "${HOST}"
+        path: /_gcp_iap/identity
+        port: 443
+        scheme: HTTPS
+      periodSeconds: 10
+      timeoutSeconds: 5
+      successThreshold: 1
+      failureThreshold: 2
+    livenessProbe:
+      httpGet:
+        path: /healthz
+        port: 8080
+    ports:
+      - containerPort: 8080

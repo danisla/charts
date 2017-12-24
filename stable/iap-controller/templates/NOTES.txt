@@ -1,0 +1,45 @@
+1. To use the iap-controller, create an IapIngress resouces like the example below:
+
+kubectl create -f - <<EOF
+apiVersion: ctl.isla.solutions/v1
+kind: IapIngress
+metadata:
+  name: iap-ingress
+spec:
+  ingressNamespace: default
+  authz:
+  - "user:user@example.com"
+  services:
+    service1.endpoints.MY_PROJECT.cloud.goog:
+      service: service1
+      port: 80
+      namespace: default
+    service2.endpoints.MY_PROJECT.cloud.goog:
+      service: service2
+      port: 80
+      namespace: default
+EOF
+
+  a. Add authorized users to the `authz` list.
+  b. If you are using the provided `*.cloud.goog` DNS records, set the values of the services entries appropriately and replace `MY_PROJECT` with the project id of your Google Cloud Platform project.
+  c. If you are not using not the provided `*.cloud.goog` record) then create a CNAME record that points to the `SERVICE.endpoints.MY_PROJECT.cloud.goog` record.
+  d. Add the upstream service and port name to the services entries for the service you want to expose.
+
+3. Add each of your endpoints to the authorized redirect uris for your OAuth 2.0 Client ID config:
+
+  Open the OAuth 2.0 Client ID config for your credential: https://console.cloud.google.com/apis/credentials
+
+  Add redirect URIs for each of your hosts in the form of:
+
+  https://HOSTNAME/_gcp_gatekeeper/authenticate
+
+  You can also run `kubectl describe iaping iap-ingress` to see the redirect uris.
+
+4. Example kubectl commands:
+
+  kubectl get iaping
+
+  kubectl describe iaping iap-ingress
+
+  kubectl delete iaping iap-ingress
+

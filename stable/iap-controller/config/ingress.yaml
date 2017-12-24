@@ -1,0 +1,9 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: iap-ingress
+  namespace: ${NAMESPACE}
+  annotations:
+    kubernetes.io/tls-acme: "true"
+    ingress.kubernetes.io/ssl-redirect: "true"
+    kubernetes.io/ingress.class: "gce"

@@ -1,0 +1,9 @@
+dependencies:
+- name: kube-lego
+  version: 0.3.0
+  condition: kube-lego.enabled
+  repository: https://kubernetes-charts.storage.googleapis.com/
+# - name: kube-metacontroller
+#   version: 0.1.0
+#   condition: kube-metacontroller.enabled
+#   repository: https://kubernetes-charts.storage.googleapis.com/
